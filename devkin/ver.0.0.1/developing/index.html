@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>DevKin</title>
+        <link rel="stylesheet" type="text/css" href="css/css-reset.css">
+        <link rel="stylesheet" type="text/css" href="css/flex-set.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+    </head>
+    <body>
+        <div id="container" class="flex fcc">
+            <div id="pad-target" class="flex fct fdc"></div>
+        </div>
+        <script>
+
+            // var devkin = {};
+
+            // devkin.prototype.pad = document.getElementById('pad-editable');
+
+            // devkin.prototype.generate_time_stamp = function() {
+            //     let timestamp = new Date().toString("m/d/Y hh:mm tt");
+            //     return timestamp;
+            // }
+
+            // devkin.prototype.set_welcome = function() {
+            //     pad.innerText(devkin.generate_time_stamp);
+            // }
+
+            // devkin.set_welcome();
+
+            const pad = document.getElementById('pad-editable'),
+                  padTarget = document.getElementById('pad-target');
+
+            let padEntries = {},
+                padGroups,               // this will be an "array-like" object, re-called when new pad created
+                initState = false,  // has user started writing
+                minuteClock,
+                lastActivePad = 0,
+                fiveMinuteCounter = 0,
+                clockStarted = false;
+
+            // check local storage
+
+            // pad.addEventListener('focus', function() {
+            //     if (initState != true) {
+            //         pad.innerText = pad.innerText.replace('Start writing', '');
+            //         initState = true;
+            //     }
+            // });
+
+            function generateTimeStamp() {
+                // let timeStamp = {},
+                //     timeStamp.parts = function() {
+                //             return new Date().toString().split(' ');
+                //         },
+                //         hour: function() {
+                //             // return parts[4];
+                //             return "yo";
+                //         }
+                //     };
+                // // return timestamp;
+                // alert(timeStamp.hour);
+                // outputs: Day Month day(num) year hh:mm:ss GMT-#### (???)
+                let monthWordNum = {
+                        "Jan":01, "Feb":02, "Mar":03, "Apr":04, "May":05, "Jun":06,
+                        "Jul":07, "Aug":08, "Sep":09, "Oct":10, "Nov":11, "Dec":12
+                    },
+                    timeStampParts = new Date().toString().split(' '),
+                    tsp = timeStampParts,
+                    tspDayWord = tsp[0],
+                    tspMonth = monthWordNum[tsp[1]],
+                    tspDay = tsp[2],
+                    tspYear = tsp[3],
+                    tspTimeParts = tsp[4].split(':'),
+                    tsptp = tspTimeParts,
+                    tspHour = tsptp[0],
+                    tspMinute = tsptp[1],
+                    tspAmPm = tspHour > 12 ? 'PM' : 'AM',
+                    tspFullString = tspDayWord + ' ' + tspMonth + '/' + tspDay + '/' + tspYear + ' ' + tspHour + ':' + tspMinute + ' ' + tspAmPm;
+
+                return tspFullString;
+
+            }
+
+            function hasContentChanged(activePadId) {
+                // console.log('padEntries: ');
+                // console.log(padEntries);
+                let curContent = document.getElementById(activePadId).childNodes[1].innerText,
+                    oldContent = padEntries[activePadId].content;
+                // console.log(curContent);
+                if (curContent != oldContent) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+
+            function startClock() {
+
+                // stat clock if not already started
+                if (clockStarted == false) {
+                    lastActivePad = 1;
+                    clockStarted = true;
+                }
+                else {
+                    return; // don't run this again except for the self-triggered setTimeout process
+                }
+
+                let curSec = new Date().getSeconds(),
+                    curMsec = parseInt((60 - curSec).toString()+'000');
+
+                console.log('content change: ' + hasContentChanged(lastActivePad));
+
+                minuteClock = setTimeout(function() {
+                    fiveMinuteCounter += 1;
+                    if (fiveMinuteCounter == 5) {
+                        // check for content change
+                        // no content change do nothing
+                        if (initState != false) {
+                            // check if content has changed
+                            if (hasContentChanged(lastActivePad) != false) {
+                                // changed
+                                // let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                                // start new pad
+                                createPadGroup();
+                            }
+                            else {
+                                // no change, don't advance
+                                let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                            }
+                        }
+                        fiveMinuteCounter = 0; // reset
+                        // content change start a new pad
+                        // set that as active (should be automatic)
+                    }
+                    else {
+                        // update time
+                        let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                    }
+                    // update active pad time
+                    // let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                    startClock(); // call self again
+                    // update active pad group time.
+                    // check state
+                    // if empty, don't do anything
+                    // if not
+                    // start new input.
+                    // maybe should keep it/set it to 5 minutes, every minute is probably a lot.
+                }, curMsec);
+            }
+
+            function padFocus() {
+                if (initState != true) {
+                    this.childNodes[1].innerText = '';
+                    initState = true;
+                }
+                this.focus();
+                lastActivePad = this.id;
+                // startClock(); // 60 second timer to update time, not sure how to sync this
+            }
+
+            function getNewPadEntryId() {
+                return Object.keys(padEntries).length;
+            }
+
+            function padEntryInit(timestamp) {
+                let padEntryText = timestamp;
+                // padEntryText += '\r\n';
+                padEntryText += '<br>';
+                return padEntryText;
+            }
+
+            function createPad(padEntryId, timestamp) {
+                let initialData = "";
+                if (initState == false) {
+                    padEntryId = 1;
+                    initialData = 'Start writing';
+                }
+                return  '<div id="' + padEntryId + '" contenteditable="true" class="flex fct fdc pad">' + 
+                            '<div class="flex flc pad-header">' +
+                                padEntryInit(timestamp) +
+                            '</div>' +
+                            '<div class="flex flt pad-content">' +
+                                initialData +
+                            '</div>' +
+                        '</div>';
+            }
+
+            function updatePadEntries(padEntryId, timestamp, content) {
+                if (padEntryId == 0) {
+                    padEntryId = 1;
+                }
+                padEntries[padEntryId] = {
+                    'timestamp': timestamp,
+                    'content': content
+                };
+            }
+
+            function updatePadGroups() {
+
+            }
+
+            function createPadGroup() {
+                // get new padEntry id
+                let newPadEntryId = getNewPadEntryId();
+                // get current timestamp
+                let curTimeStamp = generateTimeStamp();
+                // create new pad
+                let pad = createPad(newPadEntryId, curTimeStamp);
+                // add to padEntries
+                updatePadEntries(newPadEntryId, curTimeStamp, "Start writing");
+                // add to pad
+                padTarget.innerHTML += pad;
+                // update padGroups
+                padGroups = document.getElementsByClassName('pad');
+                // run loop to rebind click listener
+                // alert(padGroups);
+                // console.log(padGroups);
+                // not sure if it's wasteful to run this loop every time, or if I should just
+                // add the new one
+                for (var i = 0; i < padGroups.length; i++) {
+                    padGroups[i].addEventListener('focus', padFocus, false);
+                }
+                startClock();
+            }
+
+            createPadGroup();
+
+            function setWelcome() {
+                pad.innerText = generateTimeStamp();
+                pad.innerText += '\r\n';
+                pad.innerText += 'Start writing';
+                pad.innerText += '\r\n\r\n';
+
+            }
+
+            // setWelcome();
+
+        </script>
+    </body>
+</html>

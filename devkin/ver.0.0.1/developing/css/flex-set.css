@@ -1,0 +1,35 @@
+.flex {
+    display: flex;
+}
+    /* alignment */
+    /* first letter left-right, second letter top-bottom */
+    .fcc {
+        align-items: center; /* left-right */
+        justify-content: center; /* top-bottom */
+    }
+    .fcl {
+        align-items: flex-start;
+        justify-content: center;
+    }
+    .fct {
+        align-items: center;
+        justify-content: flex-start;
+    }
+    .flt {
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+    .fdr {
+        flex-direction: row;
+    }
+    .fdc {
+        flex-direction: column;
+    }
+    /* portioning */
+    .f-full {
+        width: 100%;
+    }
+    .f-half {
+        flex: 1;
+        width: 50%;
+    }
