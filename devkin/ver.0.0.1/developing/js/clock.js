@@ -5,7 +5,7 @@ let i = 0,
 function timedCount() {
     i = i + 1;
     postMessage(i);
-    setTimeout("timedCount()",5000);
+    setTimeout("timedCount()",60000);
 }
 
 setTimeout(timedCount(), curMsec);
