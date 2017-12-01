@@ -101,7 +101,7 @@
 
                 // stat clock if not already started
                 if (clockStarted == false) {
-                    lastActivePad = 1;
+                    lastActivePad = 0;
                     clockStarted = true;
                 }
                 else {
@@ -185,10 +185,10 @@
             }
 
             function createPad(padEntryId, timestamp) {
-                let initialData = "";
+                let initialData = "Start writing";
                 if (initState == false) {
-                    padEntryId = 1;
-                    initialData = 'Start writing';
+                    padEntryId = 0;
+                    // initialData = 'Start writing';
                 }
                 return  '<div id="' + padEntryId + '" contenteditable="true" class="flex fct fdc pad">' + 
                             '<div class="flex flc pad-header">' +
@@ -202,7 +202,7 @@
 
             function updatePadEntries(padEntryId, timestamp, content) {
                 if (padEntryId == 0) {
-                    padEntryId = 1;
+                    padEntryId = 0;
                 }
                 padEntries[padEntryId] = {
                     'timestamp': timestamp,
