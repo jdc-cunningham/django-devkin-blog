@@ -113,42 +113,54 @@
 
                 console.log('content change: ' + hasContentChanged(lastActivePad));
 
-                minuteClock = setTimeout(function() {
-                    fiveMinuteCounter += 1;
-                    if (fiveMinuteCounter == 5) {
-                        // check for content change
-                        // no content change do nothing
-                        if (initState != false) {
-                            // check if content has changed
-                            if (hasContentChanged(lastActivePad) != false) {
-                                // changed
-                                // let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
-                                // start new pad
-                                createPadGroup();
+                if (window.Worker) {
+                
+                    // works
+                    var workerClock = new Worker('js/clock.js');
+
+                    workerClock.onmessage = function(event) {
+
+                    // minuteClock = setTimeout(function() {
+                        fiveMinuteCounter += 1;
+                        if (fiveMinuteCounter == 5) {
+                            // check for content change
+                            // no content change do nothing
+                            if (initState != false) {
+                                // check if content has changed
+                                if (hasContentChanged(lastActivePad) != false) {
+                                    // changed
+                                    // let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                                    // start new pad
+                                    createPadGroup();
+                                }
+                                else {
+                                    // no change, don't advance
+                                    let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                                }
                             }
-                            else {
-                                // no change, don't advance
-                                let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
-                            }
+                            fiveMinuteCounter = 0; // reset
+                            // content change start a new pad
+                            // set that as active (should be automatic)
                         }
-                        fiveMinuteCounter = 0; // reset
-                        // content change start a new pad
-                        // set that as active (should be automatic)
+                        else {
+                            // update time
+                            let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                        }
+                        // update active pad time
+                        // let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
+                        startClock(); // call self again
+                        // update active pad group time.
+                        // check state
+                        // if empty, don't do anything
+                        // if not
+                        // start new input.
+                        // maybe should keep it/set it to 5 minutes, every minute is probably a lot.
+                    // }, curMsec);
+                
+                        
                     }
-                    else {
-                        // update time
-                        let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
-                    }
-                    // update active pad time
-                    // let activePad = document.getElementById(lastActivePad).childNodes[0].innerText = generateTimeStamp();
-                    startClock(); // call self again
-                    // update active pad group time.
-                    // check state
-                    // if empty, don't do anything
-                    // if not
-                    // start new input.
-                    // maybe should keep it/set it to 5 minutes, every minute is probably a lot.
-                }, curMsec);
+
+                }
             }
 
             function padFocus() {
@@ -213,6 +225,8 @@
                 updatePadEntries(newPadEntryId, curTimeStamp, "Start writing");
                 // add to pad
                 padTarget.innerHTML += pad;
+                // update lastActivePad
+                lastActivePad = newPadEntryId;
                 // update padGroups
                 padGroups = document.getElementsByClassName('pad');
                 // run loop to rebind click listener
