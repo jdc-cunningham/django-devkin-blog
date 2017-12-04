@@ -1,3 +1,6 @@
+# Update 12-04-2017
+I've decided to pursue a different stack/languages namely node and react. So the blog section for this is not going to be made. I am continuing the development of the "devkin" note thing. I had a thought of using it to keep track of learning/developing on different stacks. It sucks how un-hirable I am right now, oh well, will be scrubbing plates for the forseeable future until I get out.
+
 # django-devkin-blog
 A lite-weight blog based on Django but designed to be displayed with a side-by-side thought-process pad "developer nakpin" 
 hence devkin terrible name
